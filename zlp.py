@@ -1,4 +1,5 @@
 import sys
+import urllib2 as url
 
 class Client:
     def __init__(self):
@@ -55,11 +56,12 @@ def getData(filename):
     raise ValueError
         
 def dispatcher(Client,cmd,args):
-    return {'set_email':Client.setEmail(args),  
-            'set_key'  :Client.setKey(args),
-            'msg'      :Client.sendMsg(args)
-    }[cmd]
-
+    if cmd=='set_email':
+        return Client.setEmail(args)
+    elif cmd=='set_key':
+        return Client.setKey(args),
+    elif cmd=='msg':
+         return Client.sendMsg(args)
 
 def curlprint(curl):
     for c in curl:
