@@ -1,23 +1,22 @@
 # zlp
 A command line interface for zulip. 
 
-
-
-#zulip email=youremail
-----------------------
+# Documentation 
+##zulip email=youremail
  Set your Zulip account's email address.
  
 #zulip api=yourkey
  Set your Zulip account's API key.
 
 zulip filter=default args 
-=========================
  Save a filter with name "default". You cannot name a filter zulip, d, h, stream, private, tagged or msg.
   stream
   ------
     If stream=foo, filtered content will only show only messages in the stream foo.
   private
+  ---
     If private=true, filtered content will only show only private messages. If private=false or omitted, no filter is applied.
+  --
   tagged
     If tagged=true, filtered content will only show only messages in which you are tagged. If tagged=false or omitted, no filter is applied.
 
