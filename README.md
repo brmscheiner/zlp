@@ -1,11 +1,11 @@
 # zlp
-A command line interface for zulip. 
+zlp is a command line interface for zulip. 
 
-# Documentation 
-##zulip email=youremail
+# okay, how does it work? 
+##zulip set_email=youremail
  Set your Zulip account's email address.
  
-#zulip api=yourkey
+#zulip set_api=yourkey
  Set your Zulip account's API key.
 
 zulip filter=default args 
