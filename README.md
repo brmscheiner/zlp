@@ -5,9 +5,9 @@ zlp is a command line interface for zulip.
 Ask your computer politely to install zlp.
 
 ##okay, how do I use it? 
-`zulip set_email=youremail` sets your Zulip account's email address. The email address and API key must be set before zlp can function properly -- this is the equivalent to logging in to Zulip.
+`zulip set_email youremail` sets your Zulip account's email address. The email address and API key must be set before zlp can function properly -- this is the equivalent to logging in to Zulip.
  
-`zulip set_api=yourkey` sets your Zulip account's API key. To get your API key, go to zulip.com -> settings -> show/change API key.
+`zulip set_api yourkey` sets your Zulip account's API key. To get your API key, go to zulip.com -> settings -> show/change API key.
 
 `zulip filter=foo args` saves a filter with name foo. You cannot name a filter zulip, d, h, stream, private, tagged or msg. There are three optional arguments:
 * stream: If stream=foo, filtered content will only show only messages in the stream foo.
