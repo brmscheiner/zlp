@@ -1,5 +1,5 @@
 import sys
-import urllib2 as url
+import requests
 
 class Client:
     def __init__(self):
@@ -17,15 +17,42 @@ class Client:
     def sendMsg(self,args):
         arglist = [getTupleArg(x) for x in args]
         print(arglist)
-        to = getUniqueArg('to',arglist)
+        if hasArgument('stream',arglist):
+            self.sendStreamMsg(arglist)
+        elif hasArgument('to',arglist):
+            self.sendPrivateMsg(arglist)
+        else:
+            raise ValueError('You must supply either "stream" or "to" '
+                            +'arguments when using msg. ')
+    def sendPrivateMsg(self,arglist):
+        to=getUniqueArg('to',arglist)
         content = getUniqueArg('content',arglist)
-        curl = ('curl https://api.zulip.com/v1/messages -u '
+        curl = ('https://api.zulip.com/v1/messages -u '
                + self.getEmail() + ':' + self.getKey()
                + '-d "type=private" '
                + '-d "to=' + to + '" '
-               + '-d "content=' + content +'"')
-        curlprint(curl)
+               + '-d "content=' + content +'"') #maybe do r"string"?
+        print(curl)
+    def sendStreamMsg(self,arglist):
+        stream=getUniqueArg('stream',arglist)
+        content = getUniqueArg('content',arglist)
+        curl = ('https://api.zulip.com/v1/messages -u '
+               + self.getEmail() + ':' + self.getKey() + ' '
+               + '-d "type=stream" '
+               + '-d "to=' + stream + '" '
+               + '-d "subject=" '
+               + '-d "content=' + content +'"') #maybe do r"string"?
+        print(curl)
 
+def makeRequest(x):
+    r=requests.get(x)
+    print(r.text)
+
+def hasArgument(typestr,arglist):
+    argtypes = [x for (x,y) in arglist]
+    if typestr in argtypes:
+        return True
+    return False
 
 def getUniqueArg(name,arglist):
     matches = [(n,val) for (n,val) in arglist if n==name]
@@ -38,7 +65,8 @@ def getUniqueArg(name,arglist):
 
 def getTupleArg(a):
     if a.find('=') != -1:
-        return (a[:i-1],a[i:]) # 'x=y' -> ('x','y')
+        i=a.find('=')
+        return (a[:i],a[i+1:]) # 'x=y' -> ('x','y')
     else: 
         return ('content',a)
     print(a)
@@ -75,11 +103,4 @@ if __name__=='__main__':
     cmd  = args.pop(0)
     a    = Client()
     result = dispatcher(a,cmd,args)
-    
-# # Send a private message
-# client.send_message({
-    # "type": "private" | "stream",
-    # "to": "hamlet@example.com",
-    # "subject": "hrtz" # stream messages only
-    # "content": "I come not, friends, to steal away your hearts."
-# })
+
