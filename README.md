@@ -5,10 +5,10 @@ zlp is a command line interface for zulip.
 Ask your computer politely to install zlp.
 
 ##okay, how do I use it? 
-######zulip set_email=youremail
+'zulip set_email=youremail'
 Set your Zulip account's email address.
  
-######zulip set_api=yourkey
+'zulip set_api=yourkey' will 
 Set your Zulip account's API key. To get your API key, go to zulip.com -> settings -> show/change API key.
 
 ######zulip filter=foo args 
