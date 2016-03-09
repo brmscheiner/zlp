@@ -1,5 +1,6 @@
 import sys
 import requests
+import os
 
 class Client:
     def __init__(self):
@@ -27,26 +28,26 @@ class Client:
     def sendPrivateMsg(self,arglist):
         to=getUniqueArg('to',arglist)
         content = getUniqueArg('content',arglist)
-        curl = ('https://api.zulip.com/v1/messages -u '
+        curl = ('curl https://api.zulip.com/v1/messages -u '
                + self.getEmail() + ':' + self.getKey()
                + '-d "type=private" '
                + '-d "to=' + to + '" '
                + '-d "content=' + content +'"') #maybe do r"string"?
-        print(curl)
+        makeRequest(curl)
     def sendStreamMsg(self,arglist):
         stream=getUniqueArg('stream',arglist)
         content = getUniqueArg('content',arglist)
-        curl = ('https://api.zulip.com/v1/messages -u '
+        curl = ('curl https://api.zulip.com/v1/messages -u '
                + self.getEmail() + ':' + self.getKey() + ' '
                + '-d "type=stream" '
                + '-d "to=' + stream + '" '
                + '-d "subject=" '
                + '-d "content=' + content +'"') #maybe do r"string"?
-        print(curl)
+        makeRequest(curl)
 
 def makeRequest(x):
-    r=requests.get(x)
-    print(r.text)
+    print(x)
+    print(os.system(x))
 
 def hasArgument(typestr,arglist):
     argtypes = [x for (x,y) in arglist]
@@ -100,7 +101,10 @@ def curlprint(curl):
 
 if __name__=='__main__':
     args = [sys.argv[i] for i in range(len(sys.argv)) if i]
-    cmd  = args.pop(0)
-    a    = Client()
+    try:
+        cmd  = args.pop(0)
+    except IndexError:
+        raise IndexError("zlp.py must be run with command line arguments.")
+    a = Client()
     result = dispatcher(a,cmd,args)
 
