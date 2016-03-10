@@ -32,7 +32,8 @@ class Client:
                + self.getEmail() + ':' + self.getKey()
                + '-d "type=private" '
                + '-d "to=' + to + '" '
-               + '-d "content=' + content +'"') #maybe do r"string"?
+               + '-d "content=' + content +'" '
+               + '-o output.txt') 
         makeRequest(curl)
     def sendStreamMsg(self,arglist):
         stream=getUniqueArg('stream',arglist)
@@ -41,8 +42,8 @@ class Client:
                + self.getEmail() + ':' + self.getKey() + ' '
                + '-d "type=stream" '
                + '-d "to=' + stream + '" '
-               + '-d "subject=" '
-               + '-d "content=' + content +'"') #maybe do r"string"?
+               + '-d "content=' + content +'" '
+               + '-o output.txt') 
         makeRequest(curl)
 
 def makeRequest(x):
