@@ -1,6 +1,4 @@
-import sys
-import requests
-import os
+import sys, os, json, fileinput
 
 class Client:
     def __init__(self):
@@ -29,7 +27,7 @@ class Client:
         to=getUniqueArg('to',arglist)
         content = getUniqueArg('content',arglist)
         curl = ('curl https://api.zulip.com/v1/messages -u '
-               + self.getEmail() + ':' + self.getKey()
+               + self.getEmail() + ':' + self.getKey() + ' '
                + '-d "type=private" '
                + '-d "to=' + to + '" '
                + '-d "content=' + content +'" '
@@ -47,8 +45,8 @@ class Client:
         makeRequest(curl)
 
 def makeRequest(x):
-    print(x)
-    print(os.system(x))
+    # probably shouldn't be doing any of this with curl. urllib2 or requests...
+    os.system(x)
 
 def hasArgument(typestr,arglist):
     argtypes = [x for (x,y) in arglist]
