@@ -1,54 +1,75 @@
-import sys, os, json, fileinput
+import sys, requests, json, fileinput
+
+# create custom OptionError to replace ValueError 
+# decide when to registerEventQueue 
+# do something with the results of these requests!
 
 class Client:
     def __init__(self):
         pass
     def setEmail(self,args):
-        email=args[0] # add warning for ignored args
+        if len(args)>1:
+            warnIgnoredArgs(args[1:])
+        email=args[0] 
         setData('email.txt',email)
     def setKey(self,args):
-        key=args[0] # add warning for ignored args
+        if len(args)>1:
+            warnIgnoredArgs(args[1:])
+        key=args[0] 
         setData('key.txt',key)
     def getEmail(self):
         return getData('email.txt')
     def getKey(self):
         return getData('key.txt')
+    def setQueueID(self,queue_ID):
+        setData('queue_id.txt',queue_ID)
+    def setLastEventID(self,lastEvent_ID):
+        setData('last_event_id.txt',lastEvent_ID)
+    def getQueueID(self):
+        return getData('queue_id.txt')
+    def getLastEventID(self):
+        return getData('last_event_id.txt')
+    def registerEventQueue(self):
+        pass
     def sendMsg(self,args):
         arglist = [getTupleArg(x) for x in args]
-        print(arglist)
-        if hasArgument('stream',arglist):
-            self.sendStreamMsg(arglist)
-        elif hasArgument('to',arglist):
-            self.sendPrivateMsg(arglist)
-        else:
-            raise ValueError('You must supply either "stream" or "to" '
-                            +'arguments when using msg. ')
-    def sendPrivateMsg(self,arglist):
-        to=getUniqueArg('to',arglist)
-        content = getUniqueArg('content',arglist)
-        curl = ('curl https://api.zulip.com/v1/messages -u '
-               + self.getEmail() + ':' + self.getKey() + ' '
-               + '-d "type=private" '
-               + '-d "to=' + to + '" '
-               + '-d "content=' + content +'" '
-               + '-o output.txt') 
-        makeRequest(curl)
-    def sendStreamMsg(self,arglist):
-        stream=getUniqueArg('stream',arglist)
-        content = getUniqueArg('content',arglist)
-        curl = ('curl https://api.zulip.com/v1/messages -u '
-               + self.getEmail() + ':' + self.getKey() + ' '
-               + '-d "type=stream" '
-               + '-d "to=' + stream + '" '
-               + '-d "content=' + content +'" '
-               + '-o output.txt') 
-        makeRequest(curl)
-
-def makeRequest(x):
-    # probably shouldn't be doing any of this with curl. urllib2 or requests...
-    os.system(x)
-
-def hasArgument(typestr,arglist):
+        login = (self.getEmail(),self.getKey())
+        parameters = dict()
+        if hasArg('stream',arglist):
+            parameters['type'] = 'stream'
+            parameters['to'] = getUniqueArg('stream',arglist)
+            parameters['subject'] = getUniqueArg('subj',arglist)
+            
+        elif hasArg('to',arglist):
+            parameters['type'] = 'private'
+            parameters['to'] = getUniqueArg('to',arglist)
+        parameters['content'] = getUniqueArg('content',arglist)
+        r = requests.post('https://api.zulip.com/v1/messages',auth=login,params=parameters)
+    def getNews(self,args):
+        login = (self.getEmail(),self.getKey())
+        parameters = dict()
+        parameters['queue_id'] = self.getQueueID()
+        parameters['last_event_id'] = self.getLastEventID()
+        # if dont_block is omitted, zulip wont respond until there's a new event
+        parameters['dont_block'] = 'true' 
+        r = requests.get('https://api.zulip.com/v1/events',auth=login,params=parameters)
+    def getHistory(self,args):
+        login = (self.getEmail(),self.getKey())
+        r = requests.get('https://api.zulip.com/v1/export')
+        
+def warnIgnoredArgs(ignoredArgs):
+    print('Warning: the following arguments were unused:')
+    for arg in ignoredArgs:
+        print('   '+arg)
+        
+def isValidMsg(args):
+    if hasArg('stream') and hasArg('subject') and hasArg('content'):
+        return True
+    if hasArg('to') and hasArg('content'):
+        return True
+    raise ValueError("You must supply content in quotation marks ("+'""'+") and either a 'to' or 'stream' argument when using the msg command.")
+    
+def hasArg(typestr,arglist):
     argtypes = [x for (x,y) in arglist]
     if typestr in argtypes:
         return True
@@ -64,9 +85,10 @@ def getUniqueArg(name,arglist):
         return matches[0][1]
 
 def getTupleArg(a):
+    ''' 'x=y' -> ('x','y') OR 'x' -> ('content','x') '''
     if a.find('=') != -1:
         i=a.find('=')
-        return (a[:i],a[i+1:]) # 'x=y' -> ('x','y')
+        return (a[:i],a[i+1:]) 
     else: 
         return ('content',a)
     print(a)
@@ -80,9 +102,8 @@ def getData(filename):
         content = f.read().replace('\n','').replace(' ','')
     if content:
         return content
-    sys.stdout.write('Error! no content in file '+filename)
-    raise ValueError
-        
+    return False
+    
 def dispatcher(Client,cmd,args):
     if cmd=='set_email':
         return Client.setEmail(args)
@@ -90,13 +111,6 @@ def dispatcher(Client,cmd,args):
         return Client.setKey(args),
     elif cmd=='msg':
          return Client.sendMsg(args)
-
-def curlprint(curl):
-    for c in curl:
-        if c=='-':
-            sys.stdout.write('\n')
-        sys.stdout.write(c)
-    sys.stdout.write('\n')
 
 if __name__=='__main__':
     args = [sys.argv[i] for i in range(len(sys.argv)) if i]
