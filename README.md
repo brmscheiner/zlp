@@ -28,7 +28,8 @@ zlp is currently under development!
 * tagged: If tagged=true, show only messages in which you are tagged. If tagged=false or omitted, show all messages.
 * filter: Apply a saved filter. See the "zulip filter" documentation. The word filter can be omitted (zulip news py and zulip news filter="py" are equivalent).
 
-`zulip msg args "content"` sends a message. You must provide either a stream or users.
+`zulip msg args "content"` sends a message. You must provide either a stream or users. If stream is supplied, you must supply a subject as well.
 * stream: If stream=foo, your message will be posted to the stream "foo"
-* users: Use either users=ex@mail.com or users=[ex@mail.com,ex2@mail.com,ex3@mail.com] for multiple recipients. 
+* subject: Use this argument only if you are posting a message to a stream. Private messages in Zulip do not have subjects.
+* to: Use either users=ex@mail.com or to=[ex@mail.com,ex2@mail.com,ex3@mail.com] for multiple recipients. 
 
